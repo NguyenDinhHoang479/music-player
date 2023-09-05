@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+    <link rel="stylesheet" href="./assets/css/style.css" />
+    <link rel="stylesheet" href="./assets/images/chungtacuahientai.jpg">
+    <link rel="stylesheet" href="./assets/font/css/all.min.css" />
+</head>
+  <body>
+    <div class="wrapper">
+      <div class="heading">Music Player</div>
+      <div class="container-main">
+        <div class="player">
+          <div class="image">
+            <div class="image-thumb"></div>
+          </div>
+          <div class="content">
+            <header>
+              <h3 class="list-music--icon">
+                <span>List music</span>
+                <i class="fa-regular fa-arrow-right"></i>
+              </h3>
+              <i class="fa-solid fa-music icon-playlist"></i>
+            </header>
+            <h1 class="name-music">You Never Know</h1>
+            <div class="author">Blackpink</div>
+            <input id="progress" class="progress input-range" type="range" value="0" step="1" min="0" max="100">
+            <div class="time-range">
+                <span class="time-current">00:00</span>
+                <span class="time-end"></span>
+            </div>
+            <div class="options">
+                <div class="heart">
+                    <i class="fa-solid fa-heart"></i>
+                </div>
+                <div class="prev">
+                    <i class="fa-solid fa-backward"></i>
+                </div>
+                <div class="btn-toggle-play ">
+                  <i class="fa-solid fa-play pause"></i>
+                  <i style="display: none;" class="fa-solid fa-pause play"></i>
+                </div>
+                <div class="next">
+                    <i class="fa-solid fa-forward"></i>
+                </div>
+                <div class="nute">
+                    <i class="fa-solid fa-volume onVolume"></i>
+                    <i style="display: none;" class="fa-solid fa-volume-slash offVolume"></i>
+                </div>
+            </div>
+            <div class="edit-volume">
+                <i class="fa-solid fa-volume-off"></i>
+                <input type="range" class="range-volume" value="100" step="1" min="0" max="100">
+                <div class="volume-high">
+                    <i class="fa-solid fa-volume"></i>
+                </div>
+            </div>
+          </div>
+          
+          <audio id="audio"  src=""></audio>
+        </div>
+        <div class="play-list">
+           
+        </div>
+      </div>
+    </div>
+    <script src="./assets/js/index.js"></script>
+  </body>
+</html>
