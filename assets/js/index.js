@@ -14,9 +14,10 @@ const nextBtn = $(".next");
 const cd = $(".image-thumb");
 const nute = $(".nute");
 const playListSong = $(".play-list");
-
-
-
+const heart_btn = $(".heart");
+let isColer = true;
+const main = $("#toast");
+const close_toast = $(".toast__close");
 
 const _this = this;
 const app = {
@@ -79,10 +80,12 @@ const app = {
     },
   ],
 
-  render: function() {
+  render: function () {
     const htmls = this.songs.map((song, index) => {
       return `
-            <div class="playlist__content ${index === this.currentIndex ? "active" : ""}" data-index = ${index}>
+            <div class="playlist__content ${
+              index === this.currentIndex ? "active" : ""
+            }" data-index = ${index}>
             <div class="image-l">
             <img src="${song.image}" alt="">
             </div>
@@ -99,146 +102,167 @@ const app = {
     $(".play-list").innerHTML = htmls.join("");
   },
 
-  handleEvent: function() {
+  handleEvent: function () {
     const _this = this;
     // xử lý quay đĩa
-    const cdAnimate = cd.animate([
-      {transform: "rotate(360deg)"}
-    ],{
-      duration:50000,
-      Intersections: Infinity
-    })
+    const cdAnimate = cd.animate([{ transform: "rotate(360deg)" }], {
+      duration: 50000,
+      Intersections: Infinity,
+    });
     cdAnimate.pause();
-    
 
     // chuyển đổi thời gian thành phút : giây
-    const formattedTime = (seconds)=>{
+    const formattedTime = (seconds) => {
       const minutes = Math.floor(seconds / 60);
       seconds %= 60;
-      return `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
-    }
+      return `${minutes.toString().padStart(2, "0")}:${seconds
+        .toString()
+        .padStart(2, "0")}`;
+    };
     // Xử lý playBtn
-    playBtn.onclick = ()=> {
+    playBtn.onclick = () => {
       if (_this.isPlaying) {
         audio.pause();
       } else {
         audio.play();
       }
-      
     };
     // Xử lý khi next
-    nextBtn.onclick = ()=> {
+    nextBtn.onclick = () => {
       _this.nextSong();
       audio.play();
       _this.scrollToActiveSong();
-    }
+    };
     // xử lý khi prev
-    prevBtn.onclick = ()=> {
+    prevBtn.onclick = () => {
       _this.prevSong();
       audio.play();
       _this.scrollToActiveSong();
-    }
+    };
     // xử lý khi hết bài
-    audio.onended = ()=> {
+    audio.onended = () => {
       nextBtn.click();
-    }
+    };
     // Xử lý khi bật tắt âm thanh
     var isMuted = false;
-    nute.onclick = ()=> {
+    nute.onclick = () => {
       console.log(isMuted);
       if (isMuted) {
         audio.muted = false; // Bật âm thanh
-        $('.offVolume').style.display = 'none';
-        $('.onVolume').style.display = 'block';
+        $(".offVolume").style.display = "none";
+        $(".onVolume").style.display = "block";
       } else {
         audio.muted = true; // Tắt âm thanh
-        $('.offVolume').style.display = 'block';
-        $('.onVolume').style.display = 'none';
+        $(".offVolume").style.display = "block";
+        $(".onVolume").style.display = "none";
       }
       isMuted = !isMuted; // Đảo ngược trạng thái
-    }
+    };
     // khi playBtn
-    audio.onplay = ()=> {
+    audio.onplay = () => {
       _this.isPlaying = true;
       playBtn.classList.add("playing");
       cdAnimate.play();
     };
     // khi pause
-    audio.onpause =  ()=> {
+    audio.onpause = () => {
       _this.isPlaying = false;
       playBtn.classList.remove("playing");
       cdAnimate.pause();
     };
-    // xử lý tiến độ bài hát thay đổi
+    // khi click vào tim bài hát
+    heart_btn.onclick = () => {
+      if (isColer) {
+        heart_btn.style.color = "#fe2c55";
+        this.toast({
+          title: "Success",
+          message: "Đã thêm vào danh sách yêu thích",
+          type: "success",
+          duration:3000,
+        })
+      } else {
+        heart_btn.style.color = "#fff";
+        this.toast({
+          title: "Delete",
+          message: "Đã xóa khỏi danh sách yêu thích",
+          type: "error",
+          duration: 3000,
+        })
+      }
+      isColer = !isColer;
+    };
     
-    audio.ontimeupdate = ()=>{
-      if(audio.duration) {
+
+
+    // xử lý tiến độ bài hát thay đổi
+
+    audio.ontimeupdate = () => {
+      if (audio.duration) {
         timeCurrent.innerHTML = formattedTime(Math.floor(audio.currentTime));
         timeEnd.innerHTML = formattedTime(Math.floor(audio.duration));
         progress.value = Math.floor((audio.currentTime / audio.duration) * 100);
       }
-    }
+    };
     // Xử lý tua xong
-    progress.onchange = (e)=>{
-      const seekTime = audio.duration / 100 * e.target.value;
+    progress.onchange = (e) => {
+      const seekTime = (audio.duration / 100) * e.target.value;
       audio.currentTime = seekTime;
-    }
-    
-    // Xử lý khi click vào danh sách bài hát
-    playListSong.onclick = (e)=>{
-      const songElement = e.target.closest('.playlist__content:not(.active)');
+    };
 
-     if(songElement||e.target.closest('.option')){
-        if(songElement){
+    // Xử lý khi click vào danh sách bài hát
+    playListSong.onclick = (e) => {
+      const songElement = e.target.closest(".playlist__content:not(.active)");
+
+      if (songElement || e.target.closest(".option")) {
+        if (songElement) {
           _this.currentIndex = Number(songElement.dataset.index);
           _this.loadCurrentSong();
           _this.render();
           audio.play();
         }
         // click vào opsion
-     }
-    }
+      }
+    };
   },
-  // xử lý khi click vào danh sách bài hát 
-  scrollToActiveSong: function(){
+  // xử lý khi click vào danh sách bài hát
+  scrollToActiveSong: function () {
     console.log("hah");
-      setTimeout(()=>{
-        const scrollActive = $(".playlist__content.active");
-        if (scrollActive) {
-          scrollActive.scrollIntoView({
-            behavior: "smooth",
-            block: "center",
-          });
-        } else {
-          console.error('Element not found');
-        }
-      },200);
+    setTimeout(() => {
+      const scrollActive = $(".playlist__content.active");
+      if (scrollActive) {
+        scrollActive.scrollIntoView({
+          behavior: "smooth",
+          block: "center",
+        });
+      } else {
+        console.error("Element not found");
+      }
+    }, 200);
   },
 
-  defineProperties: function() {
+  defineProperties: function () {
     Object.defineProperty(this, "currentSong", {
-      get: function() {
+      get: function () {
         return this.songs[this.currentIndex];
-        
       },
     });
   },
 
-  loadCurrentSong: function() {
+  loadCurrentSong: function () {
     nameSong.textContent = this.currentSong.name;
     image.style.backgroundImage = `url('${this.currentSong.image}')`;
     audio.src = this.currentSong.path;
     this.render();
   },
-  
-  nextSong: function() {
+
+  nextSong: function () {
     this.currentIndex++;
     if (this.currentIndex >= this.songs.length) {
       this.currentIndex = 0;
     }
     this.loadCurrentSong();
   },
-  prevSong: function() {
+  prevSong: function () {
     this.currentIndex--;
     console.log(this.currentIndex);
     if (this.currentIndex < 0) {
@@ -246,8 +270,53 @@ const app = {
     }
     this.loadCurrentSong();
   },
-  
-  start: function(){
+  toast: function ({
+    title = "",
+    message = "",
+    type = "info",
+    duration = 3000,
+  }) {
+    if (main) {
+      const icons = {
+        success: "fa-solid fa-check",
+        error: "fa-solid fa-times",
+        warning: "fa-solid fa-exclamation",
+        info: "fa-solid fa-info",
+      }
+      const toast = document.createElement("div");
+      // auto close toast
+      const colseIndex = setTimeout(()=>{
+        main.removeChild(toast);
+      },duration + 1000)
+      // click close toast
+      toast.onclick = function (e) {
+        if(e.target.closest(".toast__close")){
+          main.removeChild(toast);
+          clearTimeout(colseIndex);
+        }
+      }
+
+      toast.classList.add("toast", `toast--${type}`);
+      toast.style.animation = `slideInLeft ease .3s, fadeOut linear 1s ${duration / 1000}s forwards`;
+      toast.innerHTML = `
+      <div class="toast__icon">
+            <i class="${icons[type]}"></i>
+          </div>
+          <div class="toast__body">
+            <div class="toast__title">${title}</div>
+            <div class="toast__message">${message}</div>
+          </div>
+          <div class="toast__close">
+            <i class="fa-solid fa-times"></i>
+          </div>
+      `;
+      main.appendChild(toast);
+
+    }
+
+  },
+
+  start: function () {
     // Định nghĩa các thuộc tính cho object
     this.defineProperties();
     // Tải thông tin bài hát đầu tiên vào UI
